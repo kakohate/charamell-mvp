@@ -11,8 +11,8 @@ func NewProfileService() ProfileService {
 
 type profileService struct{}
 
-func (s *profileService) CreateProfile(b []byte) ([]byte, error) {
-	return nil, nil
+func (s *profileService) CreateProfile(b []byte) (uuid.UUID, error) {
+	return uuid.UUID{}, nil
 }
 
 func (s *profileService) GetProfile(uid uuid.UUID) ([]byte, error) {

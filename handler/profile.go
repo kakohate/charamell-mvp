@@ -37,13 +37,16 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			httpError(w, http.StatusInternalServerError)
 			return
 		}
-		resp, err := h.profileService.CreateProfile(b)
+		sid, err := h.profileService.CreateProfile(b)
 		if err != nil {
 			httpError(w, errorToStatusCode(err))
 			return
 		}
+		c := new(http.Cookie)
+		c.Name = "sid"
+		c.Value = sid.String()
+		http.SetCookie(w, c)
 		w.WriteHeader(http.StatusOK)
-		w.Write(resp)
 	default:
 		switch req.Method {
 		case http.MethodGet:
