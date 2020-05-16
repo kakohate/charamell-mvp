@@ -7,16 +7,17 @@ import (
 )
 
 type Router interface {
-	ServeHTTP(http.ResponseWriter, *http.Request)
-	Route(http.ResponseWriter, *http.Request)
+	Mux() *http.ServeMux
+	Route()
 }
 
 func New(
+	mux *http.ServeMux,
 	profileHandler handler.ProfileHandler,
 	listHandler handler.ListHandler,
 ) Router {
 	r := new(router)
-	r.mux = http.NewServeMux()
+	r.mux = mux
 	r.profileHandler = profileHandler
 	r.listHandler = listHandler
 	return r
@@ -28,10 +29,11 @@ type router struct {
 	listHandler    handler.ListHandler
 }
 
-func (r *router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	r.Route(w, req)
+func (r *router) Mux() *http.ServeMux {
+	return r.mux
 }
 
-func (r *router) Route(w http.ResponseWriter, req *http.Request) {
-
+func (r *router) Route() {
+	r.mux.Handle("/list", r.listHandler)
+	r.mux.Handle("/profile", r.profileHandler)
 }

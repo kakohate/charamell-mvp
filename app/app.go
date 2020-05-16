@@ -9,7 +9,7 @@ import (
 
 type App interface {
 	Addr() string // ":8080"
-	Mux() http.Handler
+	Mux() *http.ServeMux
 }
 
 func New(r router.Router) App {
@@ -19,19 +19,20 @@ func New(r router.Router) App {
 	if addr == "" {
 		a.addr = ":8080"
 	}
-	a.mux = r
+	a.router = r
+	a.router.Route()
 	return a
 }
 
 type app struct {
-	addr string
-	mux  http.Handler
+	addr   string
+	router router.Router
 }
 
 func (a *app) Addr() string {
 	return a.addr
 }
 
-func (a *app) Mux() http.Handler {
-	return a.mux
+func (a *app) Mux() *http.ServeMux {
+	return a.router.Mux()
 }

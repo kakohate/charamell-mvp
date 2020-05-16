@@ -9,14 +9,16 @@ import (
 	"github.com/kakohate/charamell-mvp/app"
 	"github.com/kakohate/charamell-mvp/handler"
 	"github.com/kakohate/charamell-mvp/router"
+	"net/http"
 )
 
 // Injectors from wire.go:
 
 func NewApp() app.App {
+	serveMux := http.NewServeMux()
 	profileHandler := handler.NewProfileHandler()
 	listHandler := handler.NewListHandler()
-	routerRouter := router.New(profileHandler, listHandler)
+	routerRouter := router.New(serveMux, profileHandler, listHandler)
 	appApp := app.New(routerRouter)
 	return appApp
 }
