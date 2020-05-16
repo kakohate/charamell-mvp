@@ -6,11 +6,13 @@ import (
 	"github.com/kakohate/charamell-mvp/handler"
 )
 
+// Router Mux() マルチプレクサを返すメソッド, Route() ルーティング用のメソッド
 type Router interface {
 	Mux() *http.ServeMux
 	Route()
 }
 
+// New Routerの初期化
 func New(
 	mux *http.ServeMux,
 	profileHandler handler.ProfileHandler,
