@@ -1,11 +1,21 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
 
-type listHandler struct{}
+	"github.com/kakohate/charamell-mvp/service"
+)
 
-func (*listHandler) ServeHTTP(http.ResponseWriter, *http.Request) {}
+// NewListHandler ListHandlerの初期化
+func NewListHandler(s service.ListService) ListHandler {
+	h := new(listHandler)
+	h.listService = s
+	return h
+}
 
-func NewListHandler() ListHandler {
-	return new(listHandler)
+type listHandler struct {
+	listService service.ListService
+}
+
+func (h *listHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }

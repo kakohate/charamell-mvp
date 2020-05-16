@@ -1,11 +1,21 @@
 package handler
 
-import "net/http"
+import (
+	"net/http"
 
-type profileHandler struct{}
+	"github.com/kakohate/charamell-mvp/service"
+)
 
-func (*profileHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {}
+// NewProfileHandler ProfileHandlerの初期化
+func NewProfileHandler(s service.ProfileService) ProfileHandler {
+	h := new(profileHandler)
+	h.profileService = s
+	return h
+}
 
-func NewProfileHandler() ProfileHandler {
-	return new(profileHandler)
+type profileHandler struct {
+	profileService service.ProfileService
+}
+
+func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }

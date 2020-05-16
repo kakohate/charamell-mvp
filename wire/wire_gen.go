@@ -9,6 +9,7 @@ import (
 	"github.com/kakohate/charamell-mvp/app"
 	"github.com/kakohate/charamell-mvp/handler"
 	"github.com/kakohate/charamell-mvp/router"
+	"github.com/kakohate/charamell-mvp/service"
 	"net/http"
 )
 
@@ -16,8 +17,10 @@ import (
 
 func NewApp() app.App {
 	serveMux := http.NewServeMux()
-	profileHandler := handler.NewProfileHandler()
-	listHandler := handler.NewListHandler()
+	profileService := service.NewProfileService()
+	profileHandler := handler.NewProfileHandler(profileService)
+	listService := service.NewListService()
+	listHandler := handler.NewListHandler(listService)
 	routerRouter := router.New(serveMux, profileHandler, listHandler)
 	appApp := app.New(routerRouter)
 	return appApp
