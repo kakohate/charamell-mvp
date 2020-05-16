@@ -1,27 +1,16 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"os"
+
+	"github.com/kakohate/charamell-mvp/wire"
 )
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello, world!")
-}
-
 func main() {
-	http.HandleFunc("/", indexHandler)
+	app := wire.NewApp()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-		log.Printf("Defaulting to port %s", port)
-	}
-
-	log.Printf("Listening to port %s", port)
-	if err := http.ListenAndServe(":"+port, nil); err != nil {
+	if err := http.ListenAndServe(app.Addr(), app.Mux()); err != nil {
 		log.Fatal(err)
 	}
 }
