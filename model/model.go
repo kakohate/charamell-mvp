@@ -14,7 +14,7 @@ type Profile struct {
 	Deleted    bool
 	Name       string
 	Message    string
-	Limit      uint
+	Limit      uint // time_limit
 	Color      string
 	AvatarURL  string
 	Tag        []Tag
