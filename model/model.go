@@ -32,7 +32,7 @@ type Tag struct {
 // Picture プロフィール画像
 type Picture struct {
 	ProfileID uuid.UUID
-	Order     uint
+	Order     uint // display_order
 	URL       string
 }
 
