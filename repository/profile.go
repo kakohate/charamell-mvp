@@ -7,6 +7,13 @@ import (
 	"github.com/kakohate/charamell-mvp/model"
 )
 
+// NewProfileRepository ProfileRepositoryの初期化
+func NewProfileRepository(db *sql.DB) ProfileRepository {
+	return &profileRepository{
+		db: db,
+	}
+}
+
 type profileRepository struct {
 	db *sql.DB
 }
@@ -128,7 +135,7 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 	return profile, nil
 }
 
-func (r *profileRepository) GetList(sid uuid.UUID) (*model.Profile, error) {
+func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 	return nil, nil
 }
 
@@ -136,7 +143,7 @@ func (r *profileRepository) Delete(sid uuid.UUID) error {
 	return r.transaction(func(tx *sql.Tx) error {
 		_, err := tx.Exec(
 			`UPDATE profile SET deleted = TRUE WHERE sid = ?;`,
-			sid,
+			sid.ID(),
 		)
 		return err
 	})

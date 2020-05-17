@@ -23,7 +23,10 @@ func init() {
 }
 
 func main() {
-	app := wire.NewApp()
+	app, err := wire.NewApp()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if err := http.ListenAndServe(app.Addr(), app.Mux()); err != nil {
 		log.Fatal(err)

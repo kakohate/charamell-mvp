@@ -7,7 +7,10 @@ package wire
 
 import (
 	"github.com/kakohate/charamell-mvp/app"
+	"github.com/kakohate/charamell-mvp/database"
+	"github.com/kakohate/charamell-mvp/env"
 	"github.com/kakohate/charamell-mvp/handler"
+	"github.com/kakohate/charamell-mvp/repository"
 	"github.com/kakohate/charamell-mvp/router"
 	"github.com/kakohate/charamell-mvp/service"
 	"net/http"
@@ -15,13 +18,19 @@ import (
 
 // Injectors from wire.go:
 
-func NewApp() app.App {
+func NewApp() (app.App, error) {
 	serveMux := http.NewServeMux()
-	profileService := service.NewProfileService()
+	envEnv := env.NewEnv()
+	db, err := database.New(envEnv)
+	if err != nil {
+		return nil, err
+	}
+	profileRepository := repository.NewProfileRepository(db)
+	profileService := service.NewProfileService(profileRepository)
 	profileHandler := handler.NewProfileHandler(profileService)
 	listService := service.NewListService()
 	listHandler := handler.NewListHandler(listService)
 	routerRouter := router.New(serveMux, profileHandler, listHandler)
 	appApp := app.New(routerRouter)
-	return appApp
+	return appApp, nil
 }

@@ -10,16 +10,16 @@ import (
 type Profile struct {
 	ID         uuid.UUID
 	SID        uuid.UUID
-	CreatedAt  time.Time
+	CreatedAt  *time.Time
 	Deleted    bool
 	Name       string
 	Message    string
 	Limit      uint // time_limit
 	Color      string
 	AvatarURL  string
-	Tag        []Tag
-	Pictures   []Picture
-	Coordinate Coordinate
+	Tag        []*Tag
+	Pictures   []*Picture
+	Coordinate *Coordinate
 }
 
 // Tag タグ
