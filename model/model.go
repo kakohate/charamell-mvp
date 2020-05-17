@@ -24,6 +24,7 @@ type Profile struct {
 
 // Tag タグ
 type Tag struct {
+	ID        uuid.UUID
 	ProfileID uuid.UUID
 	Category  string
 	Detail    string
@@ -31,6 +32,7 @@ type Tag struct {
 
 // Picture プロフィール画像
 type Picture struct {
+	ID        uuid.UUID
 	ProfileID uuid.UUID
 	Order     uint // display_order
 	URL       string
@@ -38,6 +40,7 @@ type Picture struct {
 
 // Coordinate 座標
 type Coordinate struct {
+	ID        uuid.UUID
 	ProfileID uuid.UUID
 	Lat       float64
 	Lng       float64

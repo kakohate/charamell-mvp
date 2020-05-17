@@ -34,7 +34,7 @@ func Init(db *sql.DB) error {
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.tag( id VARBINARY(16) NOT NULL PRIMARY KEY,
 	profile_id VARBINARY(16) NOT NULL,
 	created_at datetime NOT NULL DEFAULT current_timestamp,
-	category varchar(16) UNIQUE NOT NULL,
+	category varchar(16) NOT NULL,
 	detail text NOT NULL );`)
 	if err != nil {
 		return err
