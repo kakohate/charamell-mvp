@@ -39,12 +39,13 @@ func (r *profileRepository) transaction(txFunc func(*sql.Tx) error) (err error) 
 func (r *profileRepository) Create(profile *model.Profile) error {
 	return r.transaction(func(tx *sql.Tx) error {
 		_, err := tx.Exec(
-			`INSERT INTO profile(id, sid, created_at, deleted, message, time_limit, color, avatar_url)
-			VALUES(?, ?, ?, ?, ?, ?, ?, ?)`,
-			profile.ID.ID(),
-			profile.SID.ID(),
+			`INSERT INTO profile(id, sid, created_at, deleted, name, message, time_limit, color, avatar_url)
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			profile.ID,
+			profile.SID,
 			profile.CreatedAt,
 			profile.Deleted,
+			profile.Name,
 			profile.Message,
 			profile.Limit,
 			profile.Color,

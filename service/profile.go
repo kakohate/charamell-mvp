@@ -23,15 +23,17 @@ type profileService struct {
 	profileRepository repository.ProfileRepository
 }
 
-type createProfileRequest struct {
-	Name       string           `json:"name"`
-	Tag        []profileTag     `json:"tag"`
-	Message    string           `json:"message"`
-	Limit      uint             `json:"limit"`
-	Color      string           `json:"color"`
-	AvatarURL  string           `json:"avatar_url"`
-	Pictures   []profilePicture `json:"pictures"`
-	Coordinate profileCoodinate `json:"coordinate"`
+type request struct {
+	Profile struct {
+		Name       string           `json:"name"`
+		Tag        []profileTag     `json:"tag"`
+		Message    string           `json:"message"`
+		Limit      uint             `json:"limit"`
+		Color      string           `json:"color"`
+		AvatarURL  string           `json:"avatar_url"`
+		Pictures   []profilePicture `json:"pictures"`
+		Coordinate profileCoodinate `json:"coordinate"`
+	} `json:"profile"`
 }
 
 type profileTag struct {
@@ -49,39 +51,41 @@ type profileCoodinate struct {
 }
 
 func (s *profileService) CreateProfile(b []byte) (*uuid.UUID, error) {
-	req := new(createProfileRequest)
-	json.Unmarshal(b, req)
-	id, _ := uuid.NewUUID()
-	sid, _ := uuid.NewUUID()
+	req := new(request)
+	if err := json.Unmarshal(b, req); err != nil {
+		return nil, status(http.StatusBadRequest)
+	}
+	id := uuid.New()
+	sid := uuid.New()
 	now := time.Now()
 	profile := &model.Profile{
 		ID:        id,
 		SID:       sid,
 		CreatedAt: &now,
 		Deleted:   false,
-		Name:      req.Name,
-		Message:   req.Message,
-		Limit:     req.Limit,
-		Color:     req.Color,
-		AvatarURL: req.AvatarURL,
+		Name:      req.Profile.Name,
+		Message:   req.Profile.Message,
+		Limit:     req.Profile.Limit,
+		Color:     req.Profile.Color,
+		AvatarURL: req.Profile.AvatarURL,
 		Coordinate: &model.Coordinate{
-			Lat: req.Coordinate.Lat,
-			Lng: req.Coordinate.Lng,
+			ID:        uuid.New(),
+			ProfileID: id,
+			Lat:       req.Profile.Coordinate.Lat,
+			Lng:       req.Profile.Coordinate.Lng,
 		},
 	}
-	for _, tag := range req.Tag {
-		id, _ := uuid.NewUUID()
+	for _, tag := range req.Profile.Tag {
 		profile.Tag = append(profile.Tag, &model.Tag{
-			ID:        id,
+			ID:        uuid.New(),
 			ProfileID: profile.ID,
 			Category:  tag.Category,
 			Detail:    tag.Detail,
 		})
 	}
-	for _, picture := range req.Pictures {
-		id, _ := uuid.NewUUID()
+	for _, picture := range req.Profile.Pictures {
 		profile.Pictures = append(profile.Pictures, &model.Picture{
-			ID:        id,
+			ID:        uuid.New(),
 			ProfileID: profile.ID,
 			Order:     picture.Order,
 			URL:       picture.URL,

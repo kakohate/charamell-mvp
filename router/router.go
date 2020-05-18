@@ -37,8 +37,8 @@ func (r *router) Mux() *http.ServeMux {
 }
 
 func (r *router) Route() {
-	r.mux.Handle("/profile", r.profileHandler)
-	r.mux.Handle("/list", r.listHandler)
+	r.mux.Handle("/profile/", r.profileHandler)
+	r.mux.Handle("/list/", r.listHandler)
 	r.mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
 		if req.URL.Path != "/" || req.Method != http.MethodGet {
 			http.NotFound(w, req)

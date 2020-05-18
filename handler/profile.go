@@ -47,6 +47,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		c.Value = sid.String()
 		http.SetCookie(w, c)
 		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("200 OK"))
 	default:
 		switch req.Method {
 		case http.MethodGet:

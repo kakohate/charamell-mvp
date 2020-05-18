@@ -20,35 +20,36 @@ func New(e env.Env) (*sql.DB, error) {
 
 // Init データベース作成
 func Init(db *sql.DB) error {
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS charamell.profile( id VARBINARY(16) NOT NULL PRIMARY KEY,
-	sid VARBINARY(16) NOT NULL,
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS charamell.profile( id VARCHAR(36) NOT NULL PRIMARY KEY,
+	sid VARCHAR(36) NOT NULL,
 	created_at datetime NOT NULL DEFAULT current_timestamp,
 	deleted bool NOT NULL DEFAULT FALSE,
 	name text NOT NULL,
 	message text NOT NULL,
 	time_limit int NOT NULL DEFAULT 1,
-	color varchar(16) );`)
+	color varchar(36),
+	avatar_url text NOT NULL );`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.tag( id VARBINARY(16) NOT NULL PRIMARY KEY,
-	profile_id VARBINARY(16) NOT NULL,
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.tag( id VARCHAR(36) NOT NULL PRIMARY KEY,
+	profile_id VARCHAR(36) NOT NULL,
 	created_at datetime NOT NULL DEFAULT current_timestamp,
-	category varchar(16) NOT NULL,
+	category varchar(36) NOT NULL,
 	detail text NOT NULL );`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.picture( id VARBINARY(16) NOT NULL PRIMARY KEY,
-	profile_id VARBINARY(16) NOT NULL,
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.picture( id VARCHAR(36) NOT NULL PRIMARY KEY,
+	profile_id VARCHAR(36) NOT NULL,
 	created_at datetime NOT NULL DEFAULT current_timestamp,
 	display_order int NOT NULL,
 	url text NOT NULL );`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.coordinate( id VARBINARY(16) NOT NULL PRIMARY KEY,
-	profile_id VARBINARY(16) NOT NULL,
+	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS charamell.coordinate( id VARCHAR(36) NOT NULL PRIMARY KEY,
+	profile_id VARCHAR(36) NOT NULL,
 	created_at datetime NOT NULL DEFAULT current_timestamp,
 	lat double NOT NULL,
 	lng double NOT NULL );`)
