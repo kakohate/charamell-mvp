@@ -28,7 +28,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			httpError(w, http.StatusMethodNotAllowed)
 			return
 		}
-		if req.Header.Get("Content-Type") != "application/json" {
+		if req.Header.Get("Content-Type") != "application/json;charset=UTF-8" {
 			httpError(w, http.StatusBadRequest)
 			return
 		}
