@@ -48,6 +48,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		http.SetCookie(w, c)
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("200 OK"))
+		return
 	default:
 		switch req.Method {
 		case http.MethodGet:
@@ -81,6 +82,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			}
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintln(w, http.StatusText(http.StatusOK))
+			return
 		default:
 			httpError(w, http.StatusMethodNotAllowed)
 			return
