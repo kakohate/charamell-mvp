@@ -1,8 +1,6 @@
 package service
 
 import (
-	"net/http"
-
 	"github.com/google/uuid"
 )
 
@@ -15,5 +13,5 @@ type ProfileService interface {
 
 // ListService リストの取得
 type ListService interface {
-	GetList(*http.Request) error
+	GetList(sid uuid.UUID) (resp []byte, err error)
 }

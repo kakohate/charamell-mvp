@@ -28,6 +28,7 @@ type Tag struct {
 	ProfileID uuid.UUID
 	Category  string
 	Detail    string
+	IsMatch   bool
 }
 
 // Picture プロフィール画像
