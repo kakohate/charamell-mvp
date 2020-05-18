@@ -1,24 +1,27 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/kakohate/charamell-mvp/router"
 )
 
+// App アドレスとハンドラを返す機能のみ
 type App interface {
 	Addr() string // ":8080"
 	Mux() *http.ServeMux
 }
 
+// New Appの初期化
 func New(r router.Router) App {
 	a := new(app)
 	addr := os.Getenv("PORT")
-	a.addr = addr
 	if addr == "" {
-		a.addr = ":8080"
+		addr = "8080"
 	}
+	a.addr = fmt.Sprintf(":%s", addr)
 	a.router = r
 	a.router.Route()
 	return a
