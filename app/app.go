@@ -25,7 +25,9 @@ func New(r router.Router) App {
 	a.addr = fmt.Sprintf(":%s", addr)
 	r.Route()
 	c := cors.New(cors.Options{
-		AllowedMethods: []string{http.MethodGet, http.MethodPost, http.MethodDelete},
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete},
+		AllowCredentials: true,
 	})
 	a.mux = c.Handler(r.Mux())
 	return a
