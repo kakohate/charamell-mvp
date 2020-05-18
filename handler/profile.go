@@ -53,7 +53,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		case http.MethodGet:
 			uid, err := uuid.Parse(m[1])
 			if err != nil {
-				httpError(w, http.StatusNotFound)
+				http.NotFound(w, req)
 				return
 			}
 			resp, err := h.profileService.GetProfile(uid)
@@ -63,6 +63,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			}
 			w.WriteHeader(http.StatusOK)
 			w.Write(resp)
+			return
 		case http.MethodDelete:
 			c, err := req.Cookie("sid")
 			if err != nil {
@@ -80,6 +81,9 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			}
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintln(w, http.StatusText(http.StatusOK))
+		default:
+			httpError(w, http.StatusMethodNotAllowed)
+			return
 		}
 	}
 }
