@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -53,6 +54,7 @@ type profileCoodinate struct {
 func (s *profileService) CreateProfile(b []byte) (*uuid.UUID, error) {
 	req := new(request)
 	if err := json.Unmarshal(b, req); err != nil {
+		log.Println("service", 1, err)
 		return nil, status(http.StatusBadRequest)
 	}
 	id := uuid.New()

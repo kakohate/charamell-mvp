@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"log"
 	"strings"
 
 	"github.com/google/uuid"
@@ -54,6 +55,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 			profile.AvatarURL,
 		)
 		if err != nil {
+			log.Println("repository", 1, err)
 			return err
 		}
 		tagStmt, err := tx.Prepare(
@@ -61,6 +63,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 			VALUES(?, ?, ?, ?)`,
 		)
 		if err != nil {
+			log.Println("repository", 2, err)
 			return err
 		}
 		defer tagStmt.Close()
@@ -72,6 +75,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 				tag.Detail,
 			)
 			if err != nil {
+				log.Println("repository", 3, err)
 				return err
 			}
 
@@ -81,6 +85,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 			VALUES(?, ?, ?, ?)`,
 		)
 		if err != nil {
+			log.Println("repository", 4, err)
 			return err
 		}
 		defer pictureStmt.Close()
@@ -92,6 +97,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 				picture.URL,
 			)
 			if err != nil {
+				log.Println("repository", 5, err)
 				return err
 			}
 		}
@@ -100,6 +106,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 			VALUES(?, ?, ?, ?)`,
 		)
 		if err != nil {
+			log.Println("repository", 6, err)
 			return err
 		}
 		defer coordinateStmt.Close()
@@ -138,6 +145,7 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 		&profile.Coordinate.Lat,
 		&profile.Coordinate.Lng,
 	); err != nil {
+		log.Println("repository", 1, err)
 		return nil, err
 	}
 	return profile, nil
@@ -162,6 +170,7 @@ func (r *profileRepository) GetOneBySID(sid uuid.UUID) (*model.Profile, error) {
 		&profile.Color,
 		&profile.AvatarURL,
 	); err != nil {
+		log.Println("repository", 1, err)
 		return nil, err
 	}
 	return profile, nil
@@ -179,6 +188,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 		WHERE profile.sid = ?`,
 		sid,
 	).Scan(&lat, &lng); err != nil {
+		log.Println("repository", 1, err)
 		return nil, err
 	}
 	profilesMap := make(map[uuid.UUID]*model.Profile)
@@ -195,6 +205,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 		lat-0.2, lat+0.2, lng-0.4, lng+0.4,
 	)
 	if err != nil {
+		log.Println("repository", 2, err)
 		return nil, err
 	}
 	for rows.Next() {
@@ -210,6 +221,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 			&profile.Color,
 			&profile.AvatarURL,
 		); err != nil {
+			log.Println("repository", 3, err)
 			return nil, err
 		}
 		profilesMap[profile.ID] = profile
@@ -223,6 +235,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 		WHERE profile_id in (?` + strings.Repeat(`, ?`, len(ids)-1) + `)`
 	rows, err = r.db.Query(stmt, ids...)
 	if err != nil {
+		log.Println("repository", 4, err)
 		return nil, err
 	}
 	for rows.Next() {
@@ -233,6 +246,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 			&tag.Category,
 			&tag.Detail,
 		); err != nil {
+			log.Println(4, err)
 			return nil, err
 		}
 		tags = append(tags, tag)
