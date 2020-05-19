@@ -39,11 +39,12 @@ func (r *profileRepository) transaction(txFunc func(*sql.Tx) error) (err error) 
 func (r *profileRepository) Create(profile *model.Profile) error {
 	return r.transaction(func(tx *sql.Tx) error {
 		_, err := tx.Exec(
-			`INSERT INTO profile(id, sid, created_at, deleted, name, message, time_limit, color, avatar_url)
-			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			`INSERT INTO profile(id, sid, created_at, expires, deleted, name, message, time_limit, color, avatar_url)
+			VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			profile.ID,
 			profile.SID,
 			profile.CreatedAt,
+			profile.Expires,
 			profile.Deleted,
 			profile.Name,
 			profile.Message,
@@ -114,7 +115,7 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 	profile := new(model.Profile)
 	if err := r.db.QueryRow(
-		`SELECT profile.id, sid, created_at, deleted, name, message, time_limit, color, avatar_url, coordinate.id, profile_id, lat, lng
+		`SELECT profile.id, sid, created_at, expires, deleted, name, message, time_limit, color, avatar_url, coordinate.id, profile_id, lat, lng
 		FROM profile
 		WHERE profile.id = ?
 		INNER JOIN coordinate ON
@@ -124,6 +125,7 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 		&profile.ID,
 		&profile.SID,
 		&profile.CreatedAt,
+		&profile.Expires,
 		&profile.Deleted,
 		&profile.Name,
 		&profile.Message,

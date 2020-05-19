@@ -58,10 +58,12 @@ func (s *profileService) CreateProfile(b []byte) (*uuid.UUID, error) {
 	id := uuid.New()
 	sid := uuid.New()
 	now := time.Now()
+	expires := now.Add(time.Duration(req.Profile.Limit) * time.Hour)
 	profile := &model.Profile{
 		ID:        id,
 		SID:       sid,
 		CreatedAt: &now,
+		Expires:   &expires,
 		Deleted:   false,
 		Name:      req.Profile.Name,
 		Message:   req.Profile.Message,

@@ -11,6 +11,7 @@ type Profile struct {
 	ID         uuid.UUID
 	SID        uuid.UUID
 	CreatedAt  *time.Time
+	Expires    *time.Time
 	Deleted    bool
 	Name       string
 	Message    string
