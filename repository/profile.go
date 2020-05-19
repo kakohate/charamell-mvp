@@ -173,39 +173,74 @@ func (r *profileRepository) GetOneBySID(sid uuid.UUID) (*model.Profile, error) {
 		log.Println("repository", 1, err)
 		return nil, err
 	}
+	rows, err := r.db.Query(
+		`SELECT category, detail
+		FROM tag
+		WHERE profile_id = ?`,
+		profile.ID,
+	)
+	if err != nil {
+		log.Println("repository", 2, err)
+		return nil, err
+	}
+	for rows.Next() {
+		tag := new(model.Tag)
+		if err := rows.Scan(&tag.Category, &tag.Detail); err != nil {
+			log.Println("repository", 3, err)
+			return nil, err
+		}
+		profile.Tag = append(profile.Tag, tag)
+	}
 	return profile, nil
 }
 
-func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
+func (r *profileRepository) GetList(uid uuid.UUID) ([]*model.Profile, error) {
 	var lat, lng float64
 	var ids = make([]interface{}, 0)
-	var tags = make([]*model.Tag, 0)
 	if err := r.db.QueryRow(
 		`SELECT lat, lng
 		FROM coordinate
-		INNER JOIN profile ON
-			coordinate.profile_id = profile.id
-		WHERE profile.sid = ?`,
-		sid,
+		WHERE profile_id = ?`,
+		uid,
 	).Scan(&lat, &lng); err != nil {
 		log.Println("repository", 1, err)
 		return nil, err
 	}
-	profilesMap := make(map[uuid.UUID]*model.Profile)
+	args := make([]interface{}, 0)
 	rows, err := r.db.Query(
-		`SELECT profile.id, profile.created_at, expires, deleted, name, message, time_limit, color, avatar_url
+		`SELECT category
+		FROM tag
+		WHERE profile_id = ?`,
+		uid,
+	)
+	for rows.Next() {
+		var category interface{}
+		if err := rows.Scan(&category); err != nil {
+			log.Println("repository", 3, err)
+			return nil, err
+		}
+		args = append(args, category)
+	}
+	if err != nil {
+		log.Println("repository", 2, err)
+	}
+	stmt := `SELECT profile.id, profile.created_at, expires, deleted, name, message, time_limit, color, avatar_url
 		FROM profile
 		INNER JOIN coordinate ON
 			profile.id = coordinate.profile_id
+		INNER JOIN tag ON
+			profile.id = tag.profile_id
 		WHERE NOW() < profile.expires
+			AND tag.category IN (?` + strings.Repeat(`, ?`, len(args)-1) + `)` + `
 			AND ? < lat
 			AND lat < ?
 			AND ? < lng
-			AND lng < ?;`,
-		lat-0.2, lat+0.2, lng-0.4, lng+0.4,
-	)
+			AND lng < ?`
+	args = append(args, lat-0.2, lat+0.2, lng-0.4, lng+0.4)
+	profilesMap := make(map[uuid.UUID]*model.Profile)
+	rows, err = r.db.Query(stmt, args...)
 	if err != nil {
-		log.Println("repository", 2, err)
+		log.Println("repository", 4, err)
 		return nil, err
 	}
 	for rows.Next() {
@@ -221,7 +256,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 			&profile.Color,
 			&profile.AvatarURL,
 		); err != nil {
-			log.Println("repository", 3, err)
+			log.Println("repository", 5, err)
 			return nil, err
 		}
 		profilesMap[profile.ID] = profile
@@ -230,14 +265,17 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	stmt := `SELECT id, profile_id, category, detail
+	rows, err = r.db.Query(
+		`SELECT id, profile_id, category, detail
 		FROM tag
-		WHERE profile_id in (?` + strings.Repeat(`, ?`, len(ids)-1) + `)`
-	rows, err = r.db.Query(stmt, ids...)
+		WHERE profile_id in (?`+strings.Repeat(`, ?`, len(ids)-1)+`)`,
+		ids...,
+	)
 	if err != nil {
-		log.Println("repository", 4, err)
+		log.Println("repository", 6, err)
 		return nil, err
 	}
+	var tags = make([]*model.Tag, 0)
 	for rows.Next() {
 		tag := new(model.Tag)
 		if err := rows.Scan(

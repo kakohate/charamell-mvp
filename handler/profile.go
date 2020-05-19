@@ -3,6 +3,7 @@ package handler
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -28,7 +29,10 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			httpError(w, http.StatusMethodNotAllowed)
 			return
 		}
-		if req.Header.Get("Content-Type") != "application/json;charset=UTF-8" {
+		contentType := req.Header.Get("Content-Type")
+		if contentType != "application/json" &&
+			contentType != "application/json;charset=UTF-8" {
+			log.Println("Content-Type:", contentType)
 			httpError(w, http.StatusBadRequest)
 			return
 		}

@@ -49,7 +49,11 @@ func (s *listService) GetList(sid uuid.UUID) ([]byte, error) {
 		log.Println("service", 1, "Session expired")
 		return []byte("Session expired"), status(http.StatusBadRequest)
 	}
-	profiles, err := s.profileRepository.GetList(sid)
+	tagIsMatch := make(map[string]bool)
+	for _, tag := range profile.Tag {
+		tagIsMatch[tag.Category] = true
+	}
+	profiles, err := s.profileRepository.GetList(profile.ID)
 	if err != nil {
 		return nil, status(http.StatusInternalServerError)
 	}
@@ -65,7 +69,7 @@ func (s *listService) GetList(sid uuid.UUID) ([]byte, error) {
 		for _, tag := range profile.Tag {
 			lp.Tag = append(lp.Tag, &listProfileTag{
 				Category: tag.Category,
-				IsMatch:  tag.IsMatch,
+				IsMatch:  tagIsMatch[tag.Category],
 			})
 		}
 		list.List = append(list.List, lp)
