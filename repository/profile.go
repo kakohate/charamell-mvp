@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/kakohate/charamell-mvp/model"
@@ -115,11 +116,11 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 	profile := new(model.Profile)
 	if err := r.db.QueryRow(
-		`SELECT profile.id, sid, created_at, expires, deleted, name, message, time_limit, color, avatar_url, coordinate.id, profile_id, lat, lng
+		`SELECT profile.id, sid, profile.created_at, expires, deleted, name, message, time_limit, color, avatar_url, coordinate.id, profile_id, lat, lng
 		FROM profile
-		WHERE profile.id = ?
 		INNER JOIN coordinate ON
-			profile.id = coordinate.profile_id`,
+			profile.id = coordinate.profile_id
+		WHERE profile.id = ?`,
 		uid,
 	).Scan(
 		&profile.ID,
@@ -132,6 +133,10 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 		&profile.Limit,
 		&profile.Color,
 		&profile.AvatarURL,
+		&profile.Coordinate.ID,
+		&profile.Coordinate.ProfileID,
+		&profile.Coordinate.Lat,
+		&profile.Coordinate.Lng,
 	); err != nil {
 		return nil, err
 	}
@@ -139,13 +144,85 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 }
 
 func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
-	return nil, nil
+	var lat, lng float64
+	var ids = make([]interface{}, 0)
+	var tags = make([]*model.Tag, 0)
+	if err := r.db.QueryRow(
+		`SELECT lat, lng FROM coordinate WHERE profile_id = ?`,
+		sid,
+	).Scan(&lat, &lng); err != nil {
+		return nil, err
+	}
+	profilesMap := make(map[uuid.UUID]*model.Profile)
+	rows, err := r.db.Query(
+		`SELECT profile.id, profile.created_at, expires, deleted, name, message, time_limit, color, avatar_url
+		FROM profile
+		INNER JOIN coordinate ON
+			profile.id = coordinate.profile_id
+		WHERE profile.expires < NOW()
+			AND ? < lat
+			AND lat < ?
+			AND ? < lng
+			AND lng < ?;`,
+		lat-0.2, lat+0.2, lng-0.4, lng+0.4,
+	)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		profile := new(model.Profile)
+		if err := rows.Scan(
+			&profile.ID,
+			&profile.CreatedAt,
+			&profile.Expires,
+			&profile.Deleted,
+			&profile.Name,
+			&profile.Message,
+			&profile.Limit,
+			&profile.Color,
+			&profile.AvatarURL,
+		); err != nil {
+			return nil, err
+		}
+		profilesMap[profile.ID] = profile
+		ids = append(ids, profile.ID)
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	stmt := `SELECT id, profile_id, category, detail
+		FROM tag
+		WHERE profile_id in (?` + strings.Repeat(`, ?`, len(ids)-1) + `)`
+	rows, err = r.db.Query(stmt, ids...)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		tag := new(model.Tag)
+		if err := rows.Scan(
+			&tag.ID,
+			&tag.ProfileID,
+			&tag.Category,
+			&tag.Detail,
+		); err != nil {
+			return nil, err
+		}
+		tags = append(tags, tag)
+	}
+	for _, tag := range tags {
+		profilesMap[tag.ProfileID].Tag = append(profilesMap[tag.ProfileID].Tag, tag)
+	}
+	profiles := make([]*model.Profile, 0)
+	for _, profile := range profilesMap {
+		profiles = append(profiles, profile)
+	}
+	return profiles, nil
 }
 
 func (r *profileRepository) Delete(sid uuid.UUID) error {
 	return r.transaction(func(tx *sql.Tx) error {
 		_, err := tx.Exec(
-			`UPDATE profile SET deleted = TRUE WHERE sid = ?;`,
+			`UPDATE profile SET deleted = TRUE WHERE sid = ?`,
 			sid.ID(),
 		)
 		return err
