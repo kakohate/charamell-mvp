@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -27,11 +28,13 @@ func (h *listHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 		c, err := req.Cookie("sid")
 		if err != nil {
+			log.Println("handler", 1, err)
 			httpError(w, http.StatusBadRequest)
 			return
 		}
 		sid, err := uuid.Parse(c.Value)
 		if err != nil {
+			log.Println("handler", 2, err)
 			httpError(w, http.StatusBadRequest)
 			return
 		}

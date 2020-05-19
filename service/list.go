@@ -2,6 +2,7 @@ package service
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -45,6 +46,7 @@ func (s *listService) GetList(sid uuid.UUID) ([]byte, error) {
 		return nil, status(http.StatusInternalServerError)
 	}
 	if profile.Deleted || profile.Expires.Before(time.Now()) {
+		log.Println("service", 1, "Session expired")
 		return []byte("Session expired"), status(http.StatusBadRequest)
 	}
 	profiles, err := s.profileRepository.GetList(sid)
