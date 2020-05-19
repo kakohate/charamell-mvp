@@ -26,13 +26,12 @@ func (h *listHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodGet {
 			httpError(w, http.StatusMethodNotAllowed)
 		}
-		c, err := req.Cookie("sid")
-		if err != nil {
-			log.Println("handler", 1, err)
+		sidHeader := req.Header["Session-ID"]
+		if sidHeader == nil {
 			httpError(w, http.StatusBadRequest)
 			return
 		}
-		sid, err := uuid.Parse(c.Value)
+		sid, err := uuid.Parse(sidHeader[0])
 		if err != nil {
 			log.Println("handler", 2, err)
 			httpError(w, http.StatusBadRequest)
