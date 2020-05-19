@@ -143,6 +143,30 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 	return profile, nil
 }
 
+func (r *profileRepository) GetOneBySID(sid uuid.UUID) (*model.Profile, error) {
+	profile := new(model.Profile)
+	if err := r.db.QueryRow(
+		`SELECT id, sid, created_at, expires, deleted, name, message, time_limit, color, avatar_url
+		FROM profile
+		WHERE sid = ?`,
+		sid,
+	).Scan(
+		&profile.ID,
+		&profile.SID,
+		&profile.CreatedAt,
+		&profile.Expires,
+		&profile.Deleted,
+		&profile.Name,
+		&profile.Message,
+		&profile.Limit,
+		&profile.Color,
+		&profile.AvatarURL,
+	); err != nil {
+		return nil, err
+	}
+	return profile, nil
+}
+
 func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 	var lat, lng float64
 	var ids = make([]interface{}, 0)

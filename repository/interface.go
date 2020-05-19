@@ -9,6 +9,7 @@ import (
 type ProfileRepository interface {
 	Create(*model.Profile) error
 	GetOne(uuid.UUID) (*model.Profile, error)
+	GetOneBySID(uuid.UUID) (*model.Profile, error)
 	GetList(uuid.UUID) ([]*model.Profile, error)
 	Delete(uuid.UUID) error
 }

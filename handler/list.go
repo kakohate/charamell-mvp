@@ -37,7 +37,7 @@ func (h *listHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		}
 		resp, err := h.listService.GetList(sid)
 		if err != nil {
-			httpError(w, errorToStatusCode(err))
+			http.Error(w, string(resp), errorToStatusCode(err))
 			return
 		}
 		w.WriteHeader(http.StatusOK)

@@ -2,6 +2,8 @@ package service
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/kakohate/charamell-mvp/repository"
@@ -34,17 +36,25 @@ type listProfileTag struct {
 }
 
 func (s *listService) GetList(sid uuid.UUID) ([]byte, error) {
+	profile, err := s.profileRepository.GetOneBySID(sid)
+	if err != nil {
+		return nil, err
+	}
+	if profile.Deleted || profile.Expires.After(time.Now()) {
+		return []byte("Session expired"), status(http.StatusBadRequest)
+	}
 	profiles, err := s.profileRepository.GetList(sid)
 	if err != nil {
 		return nil, err
 	}
 	list := new(listResponse)
 	for _, profile := range profiles {
+		limit := time.Until(*profile.Expires).Hours()
 		lp := &listProfile{
 			ID:        profile.ID,
 			Color:     profile.Color,
 			AvatarURL: profile.AvatarURL,
-			Limit:     profile.Limit,
+			Limit:     uint(limit),
 		}
 		for _, tag := range profile.Tag {
 			lp.Tag = append(lp.Tag, &listProfileTag{
