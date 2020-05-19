@@ -11,6 +11,7 @@ type Profile struct {
 	ID         uuid.UUID
 	SID        uuid.UUID
 	CreatedAt  *time.Time
+	Expires    *time.Time
 	Deleted    bool
 	Name       string
 	Message    string
@@ -28,6 +29,7 @@ type Tag struct {
 	ProfileID uuid.UUID
 	Category  string
 	Detail    string
+	IsMatch   bool
 }
 
 // Picture プロフィール画像
