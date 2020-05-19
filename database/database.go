@@ -23,6 +23,7 @@ func Init(db *sql.DB) error {
 	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS charamell.profile( id VARCHAR(36) NOT NULL PRIMARY KEY,
 	sid VARCHAR(36) NOT NULL,
 	created_at datetime NOT NULL DEFAULT current_timestamp,
+	expires datetime NOT NULL,
 	deleted bool NOT NULL DEFAULT FALSE,
 	name text NOT NULL,
 	message text NOT NULL,
