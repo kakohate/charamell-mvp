@@ -28,7 +28,7 @@ func NewApp() (app.App, error) {
 	profileRepository := repository.NewProfileRepository(db)
 	profileService := service.NewProfileService(profileRepository)
 	profileHandler := handler.NewProfileHandler(profileService)
-	listService := service.NewListService()
+	listService := service.NewListService(profileRepository)
 	listHandler := handler.NewListHandler(listService)
 	routerRouter := router.New(serveMux, profileHandler, listHandler)
 	appApp := app.New(routerRouter)

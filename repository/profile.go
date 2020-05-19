@@ -172,7 +172,11 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 	var ids = make([]interface{}, 0)
 	var tags = make([]*model.Tag, 0)
 	if err := r.db.QueryRow(
-		`SELECT lat, lng FROM coordinate WHERE profile_id = ?`,
+		`SELECT lat, lng
+		FROM coordinate
+		INNER JOIN profile ON
+			coordinate.profile_id = profile.id
+		WHERE profile.sid = ?`,
 		sid,
 	).Scan(&lat, &lng); err != nil {
 		return nil, err
@@ -183,7 +187,7 @@ func (r *profileRepository) GetList(sid uuid.UUID) ([]*model.Profile, error) {
 		FROM profile
 		INNER JOIN coordinate ON
 			profile.id = coordinate.profile_id
-		WHERE profile.expires < NOW()
+		WHERE NOW() < profile.expires
 			AND ? < lat
 			AND lat < ?
 			AND ? < lng

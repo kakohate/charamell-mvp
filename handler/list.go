@@ -40,6 +40,7 @@ func (h *listHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			http.Error(w, string(resp), errorToStatusCode(err))
 			return
 		}
+		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		w.Write(resp)
 		return

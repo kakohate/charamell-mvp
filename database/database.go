@@ -12,7 +12,7 @@ import (
 // New *sql.DBを初期化するだけ
 func New(e env.Env) (*sql.DB, error) {
 	dsn := fmt.Sprintf(
-		"%s:%s@%s(%s)/%s",
+		"%s:%s@%s(%s)/%s?parseTime=true",
 		e.DBUser(), e.DBPass(), e.DBProtocol(), e.DBAddress(), e.DBName(),
 	)
 	return sql.Open("mysql", dsn)

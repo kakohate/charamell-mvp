@@ -10,8 +10,12 @@ import (
 )
 
 // NewListService ListServiceの初期
-func NewListService() ListService {
-	return new(listService)
+func NewListService(
+	profileRepository repository.ProfileRepository,
+) ListService {
+	return &listService{
+		profileRepository: profileRepository,
+	}
 }
 
 type listService struct {
@@ -38,14 +42,14 @@ type listProfileTag struct {
 func (s *listService) GetList(sid uuid.UUID) ([]byte, error) {
 	profile, err := s.profileRepository.GetOneBySID(sid)
 	if err != nil {
-		return nil, err
+		return nil, status(http.StatusInternalServerError)
 	}
-	if profile.Deleted || profile.Expires.After(time.Now()) {
+	if profile.Deleted || profile.Expires.Before(time.Now()) {
 		return []byte("Session expired"), status(http.StatusBadRequest)
 	}
 	profiles, err := s.profileRepository.GetList(sid)
 	if err != nil {
-		return nil, err
+		return nil, status(http.StatusInternalServerError)
 	}
 	list := new(listResponse)
 	for _, profile := range profiles {
