@@ -123,11 +123,11 @@ func (r *profileRepository) Create(profile *model.Profile) error {
 func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 	profile := new(model.Profile)
 	if err := r.db.QueryRow(
-		`SELECT profile.id, sid, profile.created_at, expires, deleted, name, message, time_limit, color, avatar_url, coordinate.id, profile_id, lat, lng
+		`SELECT profile.id, sid, profile.created_at, expires, deleted, name, message, time_limit, color, avatar_url
 		FROM profile
 		INNER JOIN coordinate ON
 			profile.id = coordinate.profile_id
-		WHERE profile.id = ?`,
+		WHERE profile.id = ? AND NOW() < expires`,
 		uid,
 	).Scan(
 		&profile.ID,
@@ -140,13 +140,27 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 		&profile.Limit,
 		&profile.Color,
 		&profile.AvatarURL,
-		&profile.Coordinate.ID,
-		&profile.Coordinate.ProfileID,
-		&profile.Coordinate.Lat,
-		&profile.Coordinate.Lng,
 	); err != nil {
 		log.Println("repository", 1, err)
 		return nil, err
+	}
+	rows, err := r.db.Query(
+		`SELECT category, detail
+		FROM tag
+		WHERE profile_id = ?`,
+		uid,
+	)
+	if err != nil {
+		log.Println("repository", 2, err)
+		return nil, err
+	}
+	for rows.Next() {
+		tag := new(model.Tag)
+		if err := rows.Scan(&tag.Category, &tag.Detail); err != nil {
+			log.Println("repository", 3, err)
+			return nil, err
+		}
+		profile.Tag = append(profile.Tag, tag)
 	}
 	return profile, nil
 }

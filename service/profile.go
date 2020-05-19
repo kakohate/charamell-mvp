@@ -1,6 +1,7 @@
 package service
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -101,8 +102,43 @@ func (s *profileService) CreateProfile(b []byte) (*uuid.UUID, error) {
 	return &profile.SID, nil
 }
 
+type profileResp struct {
+	Name      string     `json:"name"`
+	Message   string     `json:"message"`
+	TagResp   []*tagResp `json:"tag"`
+	Limit     int        `json:"limit"`
+	Color     string     `json:"color"`
+	AvatarURL string     `json:"avatar_url"`
+}
+
+type tagResp struct {
+	Category string `json:"category"`
+	Detail   string `json:"detail"`
+}
+
 func (s *profileService) GetProfile(uid uuid.UUID) ([]byte, error) {
-	return nil, nil
+	profile, err := s.profileRepository.GetOne(uid)
+	if err != nil {
+		if err.Error() == sql.ErrNoRows.Error() {
+			return nil, status(http.StatusNotFound)
+		}
+		return nil, status(http.StatusInternalServerError)
+	}
+	resp := &profileResp{
+		Name:      profile.Name,
+		Message:   profile.Message,
+		Limit:     int(time.Until(*profile.Expires).Seconds()),
+		Color:     profile.Color,
+		AvatarURL: profile.AvatarURL,
+	}
+	for _, tag := range profile.Tag {
+		tr := &tagResp{
+			Category: tag.Category,
+			Detail:   tag.Detail,
+		}
+		resp.TagResp = append(resp.TagResp, tr)
+	}
+	return json.Marshal(resp)
 }
 
 func (s *profileService) DeleteProfile(sid uuid.UUID) error {
