@@ -59,7 +59,7 @@ func (s *listService) GetList(sid uuid.UUID) ([]byte, error) {
 	}
 	list := new(listResponse)
 	for _, profile := range profiles {
-		limit := time.Until(*profile.Expires).Hours()
+		limit := time.Until(*profile.Expires).Seconds()
 		lp := &listProfile{
 			ID:        profile.ID,
 			Color:     profile.Color,
