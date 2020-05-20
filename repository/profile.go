@@ -317,7 +317,7 @@ func (r *profileRepository) Delete(sid uuid.UUID) error {
 	return r.transaction(func(tx *sql.Tx) error {
 		_, err := tx.Exec(
 			`UPDATE profile SET deleted = TRUE WHERE sid = ?`,
-			sid.ID(),
+			sid,
 		)
 		return err
 	})

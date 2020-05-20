@@ -70,12 +70,12 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 			w.Write(resp)
 			return
 		case http.MethodDelete:
-			c, err := req.Cookie("sid")
-			if err != nil {
+			sidStr := req.Header.Get("Session-ID")
+			if sidStr == "" {
 				httpError(w, http.StatusBadRequest)
 				return
 			}
-			sid, err := uuid.Parse(c.Value)
+			sid, err := uuid.Parse(sidStr)
 			if err != nil {
 				httpError(w, http.StatusBadRequest)
 				return
@@ -84,6 +84,10 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				httpError(w, errorToStatusCode(err))
 				return
 			}
+			c := new(http.Cookie)
+			c.Name = "sid"
+			c.MaxAge = 0
+			http.SetCookie(w, c)
 			w.WriteHeader(http.StatusOK)
 			fmt.Fprintln(w, http.StatusText(http.StatusOK))
 			return

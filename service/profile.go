@@ -142,5 +142,15 @@ func (s *profileService) GetProfile(uid uuid.UUID) ([]byte, error) {
 }
 
 func (s *profileService) DeleteProfile(sid uuid.UUID) error {
-	return nil
+	err := s.profileRepository.Delete(sid)
+	if err == nil {
+		return nil
+	}
+	log.Println("repository", 1, err)
+	switch err.Error() {
+	case sql.ErrNoRows.Error():
+		return status(http.StatusNotFound)
+	default:
+		return status(http.StatusInternalServerError)
+	}
 }
