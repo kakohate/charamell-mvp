@@ -29,6 +29,7 @@ func New(r router.Router) App {
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete},
 		AllowCredentials: true,
 		AllowedHeaders:   []string{"*"},
+		ExposedHeaders:   []string{"*"},
 	})
 	a.mux = c.Handler(r.Mux())
 	return a
