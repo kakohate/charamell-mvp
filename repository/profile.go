@@ -250,6 +250,7 @@ func (r *profileRepository) GetList(uid uuid.UUID) ([]*model.Profile, error) {
 			AND lat < ?
 			AND ? < lng
 			AND lng < ?
+			AND profile.id != ?
 		LIMIT 100`
 	args = append(args, lat-0.2, lat+0.2, lng-0.4, lng+0.4)
 	profilesMap := make(map[uuid.UUID]*model.Profile)
