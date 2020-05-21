@@ -30,7 +30,8 @@ func NewApp() (app.App, error) {
 	profileHandler := handler.NewProfileHandler(profileService)
 	listService := service.NewListService(profileRepository)
 	listHandler := handler.NewListHandler(listService)
-	routerRouter := router.New(serveMux, profileHandler, listHandler)
+	defaultHandler := handler.NewDefaultHandler(profileService)
+	routerRouter := router.New(serveMux, profileHandler, listHandler, defaultHandler)
 	appApp := app.New(routerRouter)
 	return appApp, nil
 }

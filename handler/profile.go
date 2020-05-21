@@ -63,8 +63,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 				httpError(w, errorToStatusCode(err))
 				return
 			}
-			w.WriteHeader(http.StatusOK)
-			w.Write(resp)
+			responseJSON(w, resp)
 			return
 		case http.MethodDelete:
 			sidStr := req.Header.Get("Session-ID")

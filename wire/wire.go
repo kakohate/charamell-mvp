@@ -22,6 +22,7 @@ func NewApp() (app.App, error) {
 		http.NewServeMux,
 		handler.NewProfileHandler,
 		handler.NewListHandler,
+		handler.NewDefaultHandler,
 		service.NewProfileService,
 		service.NewListService,
 		repository.NewProfileRepository,

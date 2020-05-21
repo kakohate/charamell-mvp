@@ -127,7 +127,7 @@ func (r *profileRepository) GetOne(uid uuid.UUID) (*model.Profile, error) {
 		FROM profile
 		INNER JOIN coordinate ON
 			profile.id = coordinate.profile_id
-		WHERE profile.id = ? AND NOW() < expires`,
+		WHERE profile.id = ?`,
 		uid,
 	).Scan(
 		&profile.ID,

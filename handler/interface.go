@@ -11,3 +11,8 @@ type ProfileHandler interface {
 type ListHandler interface {
 	ServeHTTP(w http.ResponseWriter, req *http.Request)
 }
+
+// DefaultHandler /
+type DefaultHandler interface {
+	ServeHTTP(w http.ResponseWriter, req *http.Request)
+}

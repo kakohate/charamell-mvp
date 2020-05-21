@@ -1,7 +1,6 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/kakohate/charamell-mvp/handler"
@@ -18,11 +17,13 @@ func New(
 	mux *http.ServeMux,
 	profileHandler handler.ProfileHandler,
 	listHandler handler.ListHandler,
+	defaultHandler handler.DefaultHandler,
 ) Router {
 	r := new(router)
 	r.mux = mux
 	r.profileHandler = profileHandler
 	r.listHandler = listHandler
+	r.defaultHandler = defaultHandler
 	return r
 }
 
@@ -30,6 +31,7 @@ type router struct {
 	mux            *http.ServeMux
 	profileHandler handler.ProfileHandler
 	listHandler    handler.ListHandler
+	defaultHandler handler.DefaultHandler
 }
 
 func (r *router) Mux() *http.ServeMux {
@@ -39,11 +41,5 @@ func (r *router) Mux() *http.ServeMux {
 func (r *router) Route() {
 	r.mux.Handle("/profile/", r.profileHandler)
 	r.mux.Handle("/list/", r.listHandler)
-	r.mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-		if req.URL.Path != "/" || req.Method != http.MethodGet {
-			http.NotFound(w, req)
-			return
-		}
-		fmt.Fprint(w, "charamell")
-	})
+	r.mux.Handle("/", r.defaultHandler)
 }

@@ -119,7 +119,9 @@ type tagResp struct {
 func (s *profileService) GetProfile(uid uuid.UUID) ([]byte, error) {
 	profile, err := s.profileRepository.GetOne(uid)
 	if err != nil {
-		if err.Error() == sql.ErrNoRows.Error() {
+		if err.Error() == sql.ErrNoRows.Error() ||
+			profile.Deleted ||
+			profile.Expires.Before(time.Now()) {
 			return nil, status(http.StatusNotFound)
 		}
 		return nil, status(http.StatusInternalServerError)
@@ -153,4 +155,31 @@ func (s *profileService) DeleteProfile(sid uuid.UUID) error {
 	default:
 		return status(http.StatusInternalServerError)
 	}
+}
+
+type profileExpires struct {
+	Status struct {
+		IsExpired bool       `json:"is_expired"`
+		Expires   *time.Time `json:"expires"`
+	} `json:"status"`
+}
+
+func (s *profileService) GetProfileExpires(sid uuid.UUID) ([]byte, error) {
+	profile, err := s.profileRepository.GetOneBySID(sid)
+	if err != nil {
+		log.Println("repository", 1, err)
+		if err.Error() == sql.ErrNoRows.Error() {
+			return nil, status(http.StatusBadRequest)
+		}
+		return nil, status(http.StatusBadRequest)
+	}
+	pe := new(profileExpires)
+	pe.Status.IsExpired = profile.Expires.Before(time.Now()) || profile.Deleted
+	pe.Status.Expires = profile.Expires
+	b, err := json.Marshal(pe)
+	if err != nil {
+		log.Println("service", 1, err)
+		return nil, status(http.StatusInternalServerError)
+	}
+	return b, nil
 }

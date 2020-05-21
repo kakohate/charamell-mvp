@@ -28,3 +28,9 @@ func errorToStatusCode(err error) int {
 func httpError(w http.ResponseWriter, statusCode int) {
 	http.Error(w, http.StatusText(statusCode), statusCode)
 }
+
+func responseJSON(w http.ResponseWriter, resp []byte) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(resp)
+}
