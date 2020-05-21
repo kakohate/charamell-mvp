@@ -26,6 +26,7 @@ func (h *profileHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	switch m[1] {
 	case "new":
 		if req.Method != http.MethodPost {
+			log.Println("Method:", req.Method)
 			httpError(w, http.StatusMethodNotAllowed)
 			return
 		}
