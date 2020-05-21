@@ -31,10 +31,12 @@ func (h *defaultHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		sid, err := uuid.Parse(sidStr)
 		if err != nil {
 			httpError(w, http.StatusBadRequest)
+			return
 		}
 		resp, err := h.profileService.GetProfileExpires(sid)
 		if err != nil {
 			httpError(w, errorToStatusCode(err))
+			return
 		}
 		responseJSON(w, resp)
 		return
